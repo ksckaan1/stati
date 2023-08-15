@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="/favicon.png" />
+		<meta name="viewport" content="width=device-width" />
+		
+		<link rel="modulepreload" href="/_app/immutable/entry/start.c20d5c95.js">
+		<link rel="modulepreload" href="/_app/immutable/chunks/scheduler.643286d3.js">
+		<link rel="modulepreload" href="/_app/immutable/chunks/singletons.f28f9ba0.js">
+		<link rel="modulepreload" href="/_app/immutable/entry/app.64899922.js">
+		<link rel="modulepreload" href="/_app/immutable/chunks/index.c2323441.js">
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">
+			<script>
+				{
+					__sveltekit_gtuvg4 = {
+						base: "",
+						env: {}
+					};
+
+					const element = document.currentScript.parentElement;
+
+					Promise.all([
+						import("/_app/immutable/entry/start.c20d5c95.js"),
+						import("/_app/immutable/entry/app.64899922.js")
+					]).then(([kit, app]) => {
+						kit.start(app, element);
+					});
+				}
+			</script>
+		</div>
+	</body>
+</html>
