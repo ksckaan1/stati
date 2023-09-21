@@ -7,7 +7,7 @@ import (
 
 func TestNew(t *testing.T) {
 	s := New(&Config{
-		Name:          "Duyurubu Realtime Stats",
+		Name:          "Realtime Stats",
 		FetchInterval: time.Second,
 	})
 
