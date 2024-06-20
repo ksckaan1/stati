@@ -1,0 +1,72 @@
+package templates
+
+type WindowConfig struct {
+	Title    string
+	Subtitle string
+	ChartID  string
+	Fields   []string
+}
+
+templ ChartWindow(cfg WindowConfig) {
+	<div class="w-full rounded bg-gray-900 border border-white/20 overflow-hidden">
+		<div class="w-full bg-gray-800 border-b border-white/20 px-2 py-1 flex items-center justify-between">
+			<div class="flex gap-x-2 items-center">
+				<h2>{ cfg.Title }</h2>
+				if cfg.Subtitle != "" {
+					<span class="text-sm font-light opacity-50">
+						({ cfg.Subtitle })
+					</span>
+				}
+			</div>
+			<label class="cursor-pointer" for={ cfg.ChartID + "_detail" }>
+				Show more
+			</label>
+		</div>
+		<div class="flex flex-col w-full">
+			<div class="h-64 w-full">
+				<canvas class="w-full h-full" id={ cfg.ChartID }></canvas>
+			</div>
+			if len(cfg.Fields) > 0 {
+				<input class="hidden [&+.stats]:hidden [&:checked+.stats]:block" id={ cfg.ChartID + "_detail" } type="checkbox"/>
+				<div class="w-full stats [&>.row:nth-child(2n-1)]:bg-white/5 [&>.row]:border-b [&>.row]:border-white/20 [&>.row:last-child]:border-b-0">
+					<div class="grid grid-cols-5 bg-white/5 border-y border-white/20 text-white/50 font-light">
+						<div class="px-2">
+							Field
+						</div>
+						<div class="px-2">
+							Min
+						</div>
+						<div class="px-2">
+							Avg
+						</div>
+						<div class="px-2">
+							Max
+						</div>
+						<div class="px-2">
+							Latest
+						</div>
+					</div>
+					for _, field := range cfg.Fields {
+						<div class="row grid grid-cols-5">
+							<div class="px-2">
+								{ field }
+							</div>
+							<div class="px-2" id={ field + "_min" }>
+								0
+							</div>
+							<div class="px-2" id={ field + "_avg" }>
+								0
+							</div>
+							<div class="px-2" id={ field + "_max" }>
+								0
+							</div>
+							<div class="px-2" id={ field + "_latest" }>
+								0
+							</div>
+						</div>
+					}
+				</div>
+			}
+		</div>
+	</div>
+}
