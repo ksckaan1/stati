@@ -1,12 +1,10 @@
 # Stati
 
-![stati](./img/stati.png)
+<center><img src="./assets/stati.png" alt="stati-logo"/></center>
 
-### Go runtime realtime monitoring package
+### Realtime monitoring for Go Runtime
 
 ## Installation
-
-> requires go version `1.21` or later
 
 ```shell
 go get -u github.com/ksckaan1/stati
@@ -15,10 +13,9 @@ go get -u github.com/ksckaan1/stati
 ## Features
 - Run/Stop fetching new monitoring data,
 - Show stats in table or line graph mode,
-- Toggle Human Readable / Byte mode in sizes,
 - Simple and elegant theme,
 - Show/hide labels in line graph,
-- Show min, max, first and last values of stats on table mode.
+- Show min, max, avarage and last values of stats on table mode.
 
 
 ## Usage
@@ -27,13 +24,21 @@ go get -u github.com/ksckaan1/stati
 package main
 
 import (
-	"github.com/ksckaan1/stati"
 	"log"
+	"time"
+
+	"github.com/ksckaan1/stati"
 )
 
 func main() {
-	s := stati.New()
-	if err := s.Start(5678); err != nil {
+	s := stati.New().
+		WithAddr(":3000").
+		WithChartBuffer(100).
+		WithInterval(time.Second).
+		WithTitle("Stati")
+
+	err := s.Start()
+	if err != nil {
 		log.Fatalln(err)
 	}
 }
@@ -45,36 +50,36 @@ or use concurrent
 package main
 
 import (
-	"github.com/ksckaan1/stati"
 	"log"
+	"time"
+
+	"github.com/ksckaan1/stati"
 )
 
 func main() {
-	s := stati.New()
-	go func() {
-		if err := s.Start(5678); err != nil {
+	s := stati.New().
+		WithAddr(":3000").
+		WithChartBuffer(100).
+		WithInterval(time.Second).
+		WithTitle("Stati")
+
+	go func(){
+		err := s.Start()
+		if err != nil {
 			log.Fatalln(err)
 		}
 	}()
 
 	// other processes ...
 }
-```
 
-### Config
-```go
-s := stati.New(&stati.Config{
-    Name:          "My Realtime Stats", // default: Realtime Stats
-	FetchInterval: time.Second, // default: 1 second
-})
 ```
 
 ## Dependencies
-
-- There is no dependency for Go side.
-
-Frontend written in [Svelte](https://github.com/sveltejs/svelte)
+- [Templ](https://github.com/a-h/templ)
+- [Chart.js](https://github.com/chartjs/Chart.js)
+- [Tailwindcss](https://github.com/tailwindlabs/tailwindcss)
 
 ## Screenshot
 
-![ss](./img/ss.png)
+![ss](./img/ss.jpg)
