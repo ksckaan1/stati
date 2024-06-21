@@ -110,34 +110,49 @@ func StatsPage(cfg StatsConfig) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"w-full border border-white/20 rounded overflow-hidden\"><div class=\"bg-green-800\"><div class=\"bg-green-900 px-3 py-1 border-b border-white/20\">Garbage Collector</div><div class=\"grid grid-cols-4 gap-5 p-5 border-b border-white/20\"><div class=\"bg-green-900 p-3 rounded border border-white/20\"><h2>GC CPU Fraction</h2><div id=\"gc_cpu_fraction\">0</div></div><div class=\"bg-green-900 p-3 rounded border border-white/20\"><h2>Total Pause</h2><div id=\"total_pause\">0</div></div><div class=\"bg-green-900 p-3 rounded border border-white/20\"><h2>Last GC</h2><div id=\"last_gc\">None</div></div><div class=\"bg-green-900 p-3 rounded border border-white/20\"><h2>Next GC Byte Target</h2><div id=\"next_gc_byte_target\">0</div></div></div></div><div class=\"p-5 flex flex-col gap-5\">")
+		templ_7745c5c3_Var4 := templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
+			if !templ_7745c5c3_IsBuffer {
+				templ_7745c5c3_Buffer = templ.GetBuffer()
+				defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
+			}
+			templ_7745c5c3_Err = ChartWindow(WindowConfig{
+				Title:    "GC",
+				Subtitle: "byte",
+				ChartID:  "gc-byte-chart",
+				Fields: []string{
+					"gc_sys",
+				},
+			}).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = ChartWindow(WindowConfig{
+				Title:    "GC",
+				Subtitle: "num",
+				ChartID:  "gc-num-chart",
+				Fields: []string{
+					"gc_num",
+					"gc_num_forced",
+				},
+			}).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if !templ_7745c5c3_IsBuffer {
+				_, templ_7745c5c3_Err = io.Copy(templ_7745c5c3_W, templ_7745c5c3_Buffer)
+			}
+			return templ_7745c5c3_Err
+		})
+		templ_7745c5c3_Err = GarbageCollector().Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = ChartWindow(WindowConfig{
-			Title:    "GC",
-			Subtitle: "byte",
-			ChartID:  "gc-byte-chart",
-			Fields: []string{
-				"gc_sys",
-			},
-		}).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = ChartWindow(WindowConfig{
-			Title:    "GC",
-			Subtitle: "num",
-			ChartID:  "gc-num-chart",
-			Fields: []string{
-				"gc_num",
-				"gc_num_forced",
-			},
-		}).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div></div></main><div id=\"warning\" class=\"fixed bottom-5 right-5 hidden p-5 bg-red-900 rounded border border-white/20 shadow-lg\">Error when fetching stats</div><script src=\"/assets/chart.js\"></script>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></main><div id=\"warning\" class=\"fixed bottom-5 right-5 hidden p-5 bg-red-900 rounded border border-white/20 shadow-lg\">Error when fetching stats</div><script src=\"/assets/chart.js\"></script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -158,8 +173,8 @@ func StatsPage(cfg StatsConfig) templ.Component {
 
 func onLoad(cfg StatsConfig) templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_onLoad_8ab9`,
-		Function: `function __templ_onLoad_8ab9(cfg){let isPaused = false
+		Name: `__templ_onLoad_ce83`,
+		Function: `function __templ_onLoad_ce83(cfg){let isPaused = false
 	let showWarning = false
 
 	const warningToast = document.getElementById("warning")
@@ -234,7 +249,7 @@ func onLoad(cfg StatsConfig) templ.ComponentScript {
 	const updateGC = (gcCpuFraction, totalPause, lastGc, nextGcByteTarget) => {
 		try {
 			document.getElementById("gc_cpu_fraction").innerText = gcCpuFraction
-			document.getElementById("total_pause").innerText = totalPause
+			document.getElementById("total_pause").innerText = totalPause+"ns"
 			document.getElementById("last_gc").innerText = lastGc.includes("1970") ? "None": lastGc
 			document.getElementById("next_gc_byte_target").innerText = nextGcByteTarget
 		} catch (err) {
@@ -317,8 +332,6 @@ func onLoad(cfg StatsConfig) templ.ComponentScript {
 			gcByteChart.update()
 			gcNumChart.update()
 
-			console.log(body)
-
 			updateGC(body.gc_cpu_fraction, body.pause_total_ns,body.last_gc,body.next_gc)
 
 			if (showWarning) {
@@ -335,7 +348,7 @@ func onLoad(cfg StatsConfig) templ.ComponentScript {
 		}
 	},cfg.Interval);
 }`,
-		Call:       templ.SafeScript(`__templ_onLoad_8ab9`, cfg),
-		CallInline: templ.SafeScriptInline(`__templ_onLoad_8ab9`, cfg),
+		Call:       templ.SafeScript(`__templ_onLoad_ce83`, cfg),
+		CallInline: templ.SafeScriptInline(`__templ_onLoad_ce83`, cfg),
 	}
 }
