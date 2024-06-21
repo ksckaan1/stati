@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
+	"runtime"
 	"time"
 
 	"github.com/ksckaan1/stati/templates"
@@ -66,8 +68,14 @@ func (s *Stati) Start() error {
 func (s *Stati) StatsPage(w http.ResponseWriter, r *http.Request) {
 	page := templates.StatsPage(templates.StatsConfig{
 		Title:       s.title,
-		Interval:    s.interval.Milliseconds(),
 		ChartBuffer: s.chartBuffer,
+		Interval:    s.interval.Milliseconds(),
+		IsGCOn:      os.Getenv("GOGC") != "off",
+		GOOS:        runtime.GOOS,
+		GOARCH:      runtime.GOARCH,
+		NumCPU:      runtime.NumCPU(),
+		GOVERSION:   runtime.Version(),
+		Version:     "v0.0.4",
 	})
 	page.Render(r.Context(), w)
 }
