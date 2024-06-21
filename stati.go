@@ -4,50 +4,80 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
-	"io/fs"
 	"net/http"
+	"os"
+	"runtime"
 	"time"
+
+	"github.com/ksckaan1/stati/templates"
 )
 
-//go:embed frontend/build/*
-var feDir embed.FS
+//go:embed assets/*
+var assets embed.FS
 
 type Stati struct {
-	cfg *Config
+	title       string
+	interval    time.Duration
+	chartBuffer int
+	addr        string
 }
 
-func New(cfg ...*Config) *Stati {
-	var c *Config
-
-	if len(cfg) > 0 {
-		c = cfg[0]
-	} else {
-		c = &Config{
-			Name:          "Realtime Stats",
-			FetchInterval: time.Second,
-		}
+func New() *Stati {
+	return &Stati{
+		title:       "Realtime Stats",
+		interval:    time.Second,
+		chartBuffer: 100,
+		addr:        ":3000",
 	}
-
-	return &Stati{cfg: c}
 }
 
-func (s *Stati) Start(port int) error {
-	var err error
+func (s *Stati) WithTitle(title string) *Stati {
+	s.title = title
+	return s
+}
+
+func (s *Stati) WithInterval(interval time.Duration) *Stati {
+	s.interval = interval
+	return s
+}
+
+func (s *Stati) WithChartBuffer(buffer int) *Stati {
+	s.chartBuffer = buffer
+	return s
+}
+
+func (s *Stati) WithAddr(addr string) *Stati {
+	s.addr = addr
+	return s
+}
+
+func (s *Stati) Start() error {
 	mux := http.NewServeMux()
-	target, err := fs.Sub(feDir, "frontend/build")
+	mux.Handle("/assets/", http.FileServer(http.FS(assets)))
+	mux.HandleFunc("GET /stati", s.StatsPage)
+	mux.HandleFunc("GET /debug/stati/info", s.getStatiInfo)
+
+	err := http.ListenAndServe(s.addr, mux)
 	if err != nil {
-		return fmt.Errorf("stati / start : %w", err)
-	}
-
-	mux.Handle("/", http.FileServer(http.FS(target)))
-	mux.HandleFunc("/debug/stati/config", s.getConfig)
-	mux.HandleFunc("/debug/stati/info", s.getStatiInfo)
-
-	if err = http.ListenAndServe(fmt.Sprintf(":%d", port), mux); err != nil {
-		return fmt.Errorf("stati / start : %w", err)
+		return fmt.Errorf("http: listen and serve : %w", err)
 	}
 
 	return nil
+}
+
+func (s *Stati) StatsPage(w http.ResponseWriter, r *http.Request) {
+	page := templates.StatsPage(templates.StatsConfig{
+		Title:       s.title,
+		ChartBuffer: s.chartBuffer,
+		Interval:    s.interval.Milliseconds(),
+		IsGCOn:      os.Getenv("GOGC") != "off",
+		GOOS:        runtime.GOOS,
+		GOARCH:      runtime.GOARCH,
+		NumCPU:      runtime.NumCPU(),
+		GOVERSION:   runtime.Version(),
+		Version:     "v0.0.4",
+	})
+	page.Render(r.Context(), w)
 }
 
 func (s *Stati) getStatiInfo(w http.ResponseWriter, _ *http.Request) {
@@ -60,17 +90,5 @@ func (s *Stati) getStatiInfo(w http.ResponseWriter, _ *http.Request) {
 	if err := json.NewEncoder(w).Encode(stats); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
-	}
-}
-
-func (s *Stati) getConfig(w http.ResponseWriter, _ *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(map[string]any{
-		"name":           s.cfg.Name,
-		"fetch_interval": s.cfg.FetchInterval.Milliseconds(),
-	}); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
 	}
 }

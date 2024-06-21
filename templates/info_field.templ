@@ -1,0 +1,40 @@
+package templates
+
+import "strconv"
+
+templ InfoField(cfg StatsConfig) {
+	<div class="mt-5 grid grid-cols-4 gap-5 [&>div]:border [&>div]:bg-white/5 [&>div]:border-white/20 [&>div]:rounded [&>div]:p-3 [&>div>h2]:text-sm [&>div>h2]:text-white/50 [&>div>span]:text-xl">
+		<div>
+			<h2>
+				GOOS
+			</h2>
+			<span>
+				{ cfg.GOOS }
+			</span>
+		</div>
+		<div>
+			<h2>
+				GOARCH
+			</h2>
+			<span>
+				{ cfg.GOARCH }
+			</span>
+		</div>
+		<div>
+			<h2>
+				GOVERSION
+			</h2>
+			<span>
+				{ cfg.GOVERSION }
+			</span>
+		</div>
+		<div>
+			<h2>
+				Num CPU
+			</h2>
+			<span>
+				{ strconv.Itoa(cfg.NumCPU) }
+			</span>
+		</div>
+	</div>
+}
