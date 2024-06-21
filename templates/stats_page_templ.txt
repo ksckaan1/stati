@@ -1,0 +1,8 @@
+<!doctype html><html><head><title>
+</title><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><script src=\"/assets/tailwindcss.js\"></script></head><body class=\"bg-gray-900 text-zinc-300 overflow-y-hidden\">
+<main class=\"max-w-7xl mx-auto px-5 mt-10\"><header class=\"flex justify-between items-center\"><div class=\"text-2xl font-light\">
+</div><button id=\"pause-resume-btn\" class=\"bg-red-900 border border-white/20 rounded px-3 py-1 hover:opacity-70\">Pause</button></header>
+<div class=\"flex flex-col gap-5 my-5\">
+ 
+</div></main><div id=\"warning\" class=\"fixed bottom-5 right-5 hidden p-5 bg-red-900 rounded border border-white/20 shadow-lg\">Error when fetching stats</div><script src=\"/assets/chart.js\"></script>
+</body></html>

@@ -14,6 +14,12 @@ type StatsConfig struct {
 	Title       string
 	ChartBuffer int
 	Interval    int64
+	IsGCOn      bool
+	GOOS        string
+	GOARCH      string
+	GOVERSION   string
+	NumCPU      int
+	Version     string
 }
 
 func StatsPage(cfg StatsConfig) templ.Component {
@@ -29,33 +35,49 @@ func StatsPage(cfg StatsConfig) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html><head><title>")
+		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 1)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(cfg.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/stats_page.templ`, Line: 14, Col: 15}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/stats_page.templ`, Line: 20, Col: 15}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</title><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><script src=\"/assets/tailwindcss.js\"></script></head><body class=\"bg-gray-900 text-zinc-300\"><main class=\"max-w-7xl mx-auto px-5 mt-10\"><header class=\"flex justify-between items-center\"><div class=\"text-2xl font-bold\">")
+		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 2)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = Splash().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 3)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(cfg.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/stats_page.templ`, Line: 23, Col: 48}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/stats_page.templ`, Line: 30, Col: 49}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><button id=\"pause-resume-btn\" class=\"bg-red-900 border border-white/20 rounded px-3 py-1\">Pause</button></header><div class=\"flex flex-col gap-5 my-5\">")
+		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 4)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = InfoField(cfg).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 5)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -127,7 +149,7 @@ func StatsPage(cfg StatsConfig) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" ")
+			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 6)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -148,11 +170,11 @@ func StatsPage(cfg StatsConfig) templ.Component {
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = GarbageCollector().Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = GarbageCollector(cfg).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></main><div id=\"warning\" class=\"fixed bottom-5 right-5 hidden p-5 bg-red-900 rounded border border-white/20 shadow-lg\">Error when fetching stats</div><script src=\"/assets/chart.js\"></script>")
+		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 7)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -160,7 +182,11 @@ func StatsPage(cfg StatsConfig) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</body></html>")
+		templ_7745c5c3_Err = Footer(cfg).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 8)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -173,8 +199,8 @@ func StatsPage(cfg StatsConfig) templ.Component {
 
 func onLoad(cfg StatsConfig) templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_onLoad_ce83`,
-		Function: `function __templ_onLoad_ce83(cfg){let isPaused = false
+		Name: `__templ_onLoad_0e18`,
+		Function: `function __templ_onLoad_0e18(cfg){let isPaused = false
 	let showWarning = false
 
 	const warningToast = document.getElementById("warning")
@@ -196,7 +222,11 @@ func onLoad(cfg StatsConfig) templ.ComponentScript {
 
 	const options = {
 			responsive: true,
-      maintainAspectRatio: false
+      maintainAspectRatio: false,
+			interaction: {
+      	intersect: false,
+				mode: "nearest"
+    	},
 	}
 
 	const newChart = (chartID, fields) => {
@@ -280,14 +310,19 @@ func onLoad(cfg StatsConfig) templ.ComponentScript {
 		"frees"
 		])
 
-	const gcByteChart = newChart("gc-byte-chart", [
-		"gc_sys"
-		])
-	
-	const gcNumChart = newChart("gc-num-chart", [
-		"gc_num",
-		"gc_num_forced"
-		])
+		let gcByteChart;
+		let gcNumChart;
+
+	if (cfg.IsGCOn) {
+		gcByteChart = newChart("gc-byte-chart", [
+			"gc_sys"
+			])
+		
+		gcNumChart = newChart("gc-num-chart", [
+			"gc_num",
+			"gc_num_forced"
+			])
+	}
 
 	setInterval(async ()=>{
 		if (isPaused) return;
@@ -317,22 +352,26 @@ func onLoad(cfg StatsConfig) templ.ComponentScript {
 			addValue(heapCountChart, time, "mallocs", body.mallocs)
 			addValue(heapCountChart, time, "frees", body.frees)
 
-			// GC (byte)
-			addValue(gcByteChart, time, "gc_sys", body.gc_sys)
+			if (cfg.IsGCOn) {
+				// GC (byte)
+				addValue(gcByteChart, time, "gc_sys", body.gc_sys)
 
-			// GC (num)
-			addValue(gcNumChart, time, "gc_num", body.num_gc)
-			addValue(gcNumChart, time, "gc_num_forced", body.num_forced_gc)
-
+				// GC (num)
+				addValue(gcNumChart, time, "gc_num", body.num_gc)
+				addValue(gcNumChart, time, "gc_num_forced", body.num_forced_gc)
+			}
 
 			goroutineChart.update()
 			sysChart.update()
 			heapByteChart.update()
 			heapCountChart.update()
-			gcByteChart.update()
-			gcNumChart.update()
 
-			updateGC(body.gc_cpu_fraction, body.pause_total_ns,body.last_gc,body.next_gc)
+			if (cfg.IsGCOn) {
+				gcByteChart.update()
+				gcNumChart.update()
+				updateGC(body.gc_cpu_fraction, body.pause_total_ns,body.last_gc,body.next_gc)
+			}
+
 
 			if (showWarning) {
 				showWarning = false
@@ -340,6 +379,7 @@ func onLoad(cfg StatsConfig) templ.ComponentScript {
 				warningToast.classList.add("hidden")
 			}
 		} catch (err) {
+			console.error(err)
 			if (!showWarning) {
 				showWarning = true
 				warningToast.classList.remove("hidden")
@@ -348,7 +388,7 @@ func onLoad(cfg StatsConfig) templ.ComponentScript {
 		}
 	},cfg.Interval);
 }`,
-		Call:       templ.SafeScript(`__templ_onLoad_ce83`, cfg),
-		CallInline: templ.SafeScriptInline(`__templ_onLoad_ce83`, cfg),
+		Call:       templ.SafeScript(`__templ_onLoad_0e18`, cfg),
+		CallInline: templ.SafeScriptInline(`__templ_onLoad_0e18`, cfg),
 	}
 }

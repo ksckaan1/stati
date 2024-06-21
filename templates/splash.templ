@@ -1,0 +1,18 @@
+package templates
+
+templ Splash() {
+	<div id="splash" class="fixed inset-0 bg-gray-900 flex justify-center items-center z-50 opacity-100 transition-all duration-500">
+		<img src="/assets/stati.png" alt=""/>
+	</div>
+	@fadeOut()
+}
+
+script fadeOut() {
+  setTimeout(()=>{
+    document.querySelector("#splash").classList.add("opacity-0")
+    setTimeout(()=>{
+      document.querySelector("#splash").classList.add("hidden")
+      document.querySelector("body").classList.remove("overflow-y-hidden")
+    },500)
+  },1500)
+}

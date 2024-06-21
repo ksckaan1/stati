@@ -4,6 +4,12 @@ type StatsConfig struct {
 	Title       string
 	ChartBuffer int
 	Interval    int64
+	IsGCOn      bool
+	GOOS        string
+	GOARCH      string
+	GOVERSION   string
+	NumCPU      int
+	Version     string
 }
 
 templ StatsPage(cfg StatsConfig) {
@@ -17,12 +23,14 @@ templ StatsPage(cfg StatsConfig) {
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<script src="/assets/tailwindcss.js"></script>
 		</head>
-		<body class="bg-gray-900 text-zinc-300">
+		<body class="bg-gray-900 text-zinc-300 overflow-y-hidden">
+			@Splash()
 			<main class="max-w-7xl mx-auto px-5 mt-10">
 				<header class="flex justify-between items-center">
-					<div class="text-2xl font-bold">{ cfg.Title }</div>
-					<button id="pause-resume-btn" class="bg-red-900 border border-white/20 rounded px-3 py-1">Pause</button>
+					<div class="text-2xl font-light">{ cfg.Title }</div>
+					<button id="pause-resume-btn" class="bg-red-900 border border-white/20 rounded px-3 py-1 hover:opacity-70">Pause</button>
 				</header>
+				@InfoField(cfg)
 				<div class="flex flex-col gap-5 my-5">
 					@ChartWindow(WindowConfig{
 						Title:    "Goroutine",
@@ -63,7 +71,7 @@ templ StatsPage(cfg StatsConfig) {
 							"frees",
 						},
 					})
-					@GarbageCollector() {
+					@GarbageCollector(cfg) {
 						@ChartWindow(WindowConfig{
 							Title:    "GC",
 							Subtitle: "byte",
@@ -89,6 +97,7 @@ templ StatsPage(cfg StatsConfig) {
 			</div>
 			<script src="/assets/chart.js"></script>
 			@onLoad(cfg)
+			@Footer(cfg)
 		</body>
 	</html>
 }
@@ -116,7 +125,11 @@ script onLoad(cfg StatsConfig) {
 
 	const options = {
 			responsive: true,
-      maintainAspectRatio: false
+      maintainAspectRatio: false,
+			interaction: {
+      	intersect: false,
+				mode: "nearest"
+    	},
 	}
 
 	const newChart = (chartID, fields) => {
@@ -200,14 +213,19 @@ script onLoad(cfg StatsConfig) {
 		"frees"
 		])
 
-	const gcByteChart = newChart("gc-byte-chart", [
-		"gc_sys"
-		])
-	
-	const gcNumChart = newChart("gc-num-chart", [
-		"gc_num",
-		"gc_num_forced"
-		])
+		let gcByteChart;
+		let gcNumChart;
+
+	if (cfg.IsGCOn) {
+		gcByteChart = newChart("gc-byte-chart", [
+			"gc_sys"
+			])
+		
+		gcNumChart = newChart("gc-num-chart", [
+			"gc_num",
+			"gc_num_forced"
+			])
+	}
 
 	setInterval(async ()=>{
 		if (isPaused) return;
@@ -237,22 +255,26 @@ script onLoad(cfg StatsConfig) {
 			addValue(heapCountChart, time, "mallocs", body.mallocs)
 			addValue(heapCountChart, time, "frees", body.frees)
 
-			// GC (byte)
-			addValue(gcByteChart, time, "gc_sys", body.gc_sys)
+			if (cfg.IsGCOn) {
+				// GC (byte)
+				addValue(gcByteChart, time, "gc_sys", body.gc_sys)
 
-			// GC (num)
-			addValue(gcNumChart, time, "gc_num", body.num_gc)
-			addValue(gcNumChart, time, "gc_num_forced", body.num_forced_gc)
-
+				// GC (num)
+				addValue(gcNumChart, time, "gc_num", body.num_gc)
+				addValue(gcNumChart, time, "gc_num_forced", body.num_forced_gc)
+			}
 
 			goroutineChart.update()
 			sysChart.update()
 			heapByteChart.update()
 			heapCountChart.update()
-			gcByteChart.update()
-			gcNumChart.update()
 
-			updateGC(body.gc_cpu_fraction, body.pause_total_ns,body.last_gc,body.next_gc)
+			if (cfg.IsGCOn) {
+				gcByteChart.update()
+				gcNumChart.update()
+				updateGC(body.gc_cpu_fraction, body.pause_total_ns,body.last_gc,body.next_gc)
+			}
+
 
 			if (showWarning) {
 				showWarning = false
@@ -260,6 +282,7 @@ script onLoad(cfg StatsConfig) {
 				warningToast.classList.add("hidden")
 			}
 		} catch (err) {
+			console.error(err)
 			if (!showWarning) {
 				showWarning = true
 				warningToast.classList.remove("hidden")

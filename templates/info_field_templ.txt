@@ -1,0 +1,5 @@
+<div class=\"mt-5 grid grid-cols-4 gap-5 [&amp;&gt;div]:border [&amp;&gt;div]:bg-white/5 [&amp;&gt;div]:border-white/20 [&amp;&gt;div]:rounded [&amp;&gt;div]:p-3 [&amp;&gt;div&gt;h2]:text-sm [&amp;&gt;div&gt;h2]:text-white/50 [&amp;&gt;div&gt;span]:text-xl\"><div><h2>GOOS</h2><span>
+</span></div><div><h2>GOARCH</h2><span>
+</span></div><div><h2>GOVERSION</h2><span>
+</span></div><div><h2>Num CPU</h2><span>
+</span></div></div>
