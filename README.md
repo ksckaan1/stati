@@ -72,8 +72,9 @@ func main() {
 
 	// other processes ...
 }
-
 ```
+
+Open [http://localhost:3000/stati](http://localhost:3000/stati) on your browser.
 
 ## Dependencies
 - [Templ](https://github.com/a-h/templ)
