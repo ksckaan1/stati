@@ -592,16 +592,12 @@ video {
   margin-top: 1.25rem;
 }
 
-.block {
-  display: block;
-}
-
-.inline {
-  display: inline;
-}
-
 .flex {
   display: flex;
+}
+
+.table {
+  display: table;
 }
 
 .grid {
@@ -673,12 +669,13 @@ video {
        column-gap: 0.5rem;
 }
 
-.overflow-hidden {
-  overflow: hidden;
+.gap-x-3 {
+  -moz-column-gap: 0.75rem;
+       column-gap: 0.75rem;
 }
 
-.overflow-y-hidden {
-  overflow-y: hidden;
+.overflow-hidden {
+  overflow: hidden;
 }
 
 .rounded {
@@ -741,6 +738,10 @@ video {
 
 .bg-red-900\/20 {
   background-color: rgb(127 29 29 / 0.2);
+}
+
+.bg-white\/20 {
+  background-color: rgb(255 255 255 / 0.2);
 }
 
 .bg-white\/5 {
@@ -819,10 +820,6 @@ video {
   text-decoration-line: underline;
 }
 
-.opacity-0 {
-  opacity: 0;
-}
-
 .opacity-100 {
   opacity: 1;
 }
@@ -849,22 +846,6 @@ video {
 
 .hover\:opacity-70:hover {
   opacity: 0.7;
-}
-
-.\[\&\+\.stats\]\:hidden+.stats {
-  display: none;
-}
-
-.\[\&\:checked\+\.stats\]\:block:checked+.stats {
-  display: block;
-}
-
-.\[\&\:has\(input\:checked\)_\.less\]\:inline:has(input:checked) .less {
-  display: inline;
-}
-
-.\[\&\:has\(input\:checked\)_\.more\]\:hidden:has(input:checked) .more {
-  display: none;
 }
 
 .\[\&\>\.row\:last-child\]\:border-b-0>.row:last-child {
