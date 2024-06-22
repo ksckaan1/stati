@@ -27,29 +27,9 @@ func Splash() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = fadeOut().Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
 		if !templ_7745c5c3_IsBuffer {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteTo(templ_7745c5c3_W)
 		}
 		return templ_7745c5c3_Err
 	})
-}
-
-func fadeOut() templ.ComponentScript {
-	return templ.ComponentScript{
-		Name: `__templ_fadeOut_0af6`,
-		Function: `function __templ_fadeOut_0af6(){setTimeout(()=>{
-    document.querySelector("#splash").classList.add("opacity-0")
-    setTimeout(()=>{
-      document.querySelector("#splash").classList.add("hidden")
-      document.querySelector("body").classList.remove("overflow-y-hidden")
-    },500)
-  },1500)
-}`,
-		Call:       templ.SafeScript(`__templ_fadeOut_0af6`),
-		CallInline: templ.SafeScriptInline(`__templ_fadeOut_0af6`),
-	}
 }

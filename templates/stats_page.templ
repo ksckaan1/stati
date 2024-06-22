@@ -1,5 +1,8 @@
 package templates
 
+import "fmt"
+import "strconv"
+
 type StatsConfig struct {
 	Title       string
 	ChartBuffer int
@@ -22,13 +25,35 @@ templ StatsPage(cfg StatsConfig) {
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<link rel="stylesheet" href="/assets/style.css"/>
+			<script src="/assets/alpine.js" defer></script>
+			<script src="/assets/chart.js"></script>
 		</head>
-		<body class="bg-gray-900 text-zinc-300 overflow-y-hidden">
+		<body class="bg-gray-900 text-zinc-300">
 			@Splash()
-			<main class="max-w-7xl mx-auto px-5 mt-10">
+			<main
+				class="max-w-7xl mx-auto px-5 mt-10"
+				x-data="{ is_paused : false, is_human_readable: true }"
+			>
 				<header class="flex justify-between items-center">
 					<div class="text-2xl font-light">{ cfg.Title }</div>
-					<button id="pause-resume-btn" class="bg-red-900 border border-white/20 rounded px-3 py-1 hover:opacity-70">Pause</button>
+					<div class="flex gap-x-3">
+						<button
+							@click="is_human_readable = !is_human_readable"
+							class="cursor-pointer px-3 py-0.5 border border-white/20 rounded hover:opacity-70"
+							:class="is_human_readable && 'bg-white/20'"
+						>
+							Human Readable
+						</button>
+						<button
+							@click="()=> {
+							is_paused = !is_paused;
+							is_paused ? pause() : resume();
+						}"
+							class="border border-white/20 rounded px-3 py-1 hover:opacity-70"
+							:class="is_paused ? 'bg-green-900':'bg-red-900'"
+							x-text="is_paused ? 'Resume':'Pause'"
+						>Pause</button>
+					</div>
 				</header>
 				@InfoField(cfg)
 				<div class="flex flex-col gap-5 my-5">
@@ -95,199 +120,8 @@ templ StatsPage(cfg StatsConfig) {
 			<div id="warning" class="fixed bottom-5 right-5 hidden p-5 bg-red-900 rounded border border-white/20 shadow-lg">
 				Error when fetching stats
 			</div>
-			<script src="/assets/chart.js"></script>
-			@onLoad(cfg)
 			@Footer(cfg)
+			<script data-is-gc-on={ fmt.Sprintf("%v", cfg.IsGCOn) } data-chart-buffer={ strconv.Itoa(cfg.ChartBuffer) } data-interval={ strconv.Itoa(int(cfg.Interval)) } src="/assets/script.js"></script>
 		</body>
 	</html>
-}
-
-script onLoad(cfg StatsConfig) {
-	let isPaused = false
-	let showWarning = false
-
-	const warningToast = document.getElementById("warning")
-
-	const pauseResumeBtn = document.getElementById("pause-resume-btn")
-	pauseResumeBtn.addEventListener("click", (e) => {
-		isPaused = !isPaused
-
-		if (isPaused) {
-			e.target.classList.remove("bg-red-900")
-			e.target.classList.add("bg-green-900")
-			e.target.innerText = "Resume"
-		} else {
-			e.target.classList.remove("bg-green-900")
-			e.target.classList.add("bg-red-900")
-			e.target.innerText = "Pause"
-		}
-	})
-
-	const options = {
-			responsive: true,
-      maintainAspectRatio: false,
-			interaction: {
-      	intersect: false,
-				mode: "nearest"
-    	},
-	}
-
-	const newChart = (chartID, fields) => {
-		const ch = new Chart(document.getElementById(chartID), {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: fields.map(fieldName => {
-					return {
-        		label: fieldName,
-        		data: [],
-        		borderWidth: 1,
-						pointBorderColor: "transparent",
-						pointBackgroundColor: "transparent",
-					}
-				})
-    },
-    options
-  });
-		return ch
-	}
-
-	const addValue = (chart, time, field, value) => {
-		const index = chart.data.datasets.findIndex(d => d.label === field)
-		if (index === -1) return;
-
-		if (chart.data.datasets[index].data.length >= cfg.ChartBuffer) {
-			chart.data.datasets[index].data.shift()
-		}
-
-		chart.data.datasets[index].data.push(value)
-
-		try {
-			document.getElementById(field+"_latest").innerText = Number(value)
-			document.getElementById(field+"_min").innerText = Math.min(...chart.data.datasets[index].data)
-			document.getElementById(field+"_max").innerText = Math.max(...chart.data.datasets[index].data)
-
-			const sum = chart.data.datasets[index].data.reduce((a, b) => a + b, 0);
-			const avg = (sum / chart.data.datasets[index].data.length) || 0;
-			document.getElementById(field+"_avg").innerText = avg
-
-		} catch (err) {
-			console.error(err)
-		}
-		if (chart.data.labels.length != chart.data.datasets[index].data.length) {
-			chart.data.labels.push(time)
-		}
-	}
-
-	const updateGC = (gcCpuFraction, totalPause, lastGc, nextGcByteTarget) => {
-		try {
-			document.getElementById("gc_cpu_fraction").innerText = gcCpuFraction
-			document.getElementById("total_pause").innerText = totalPause+"ns"
-			document.getElementById("last_gc").innerText = lastGc.includes("1970") ? "None": lastGc
-			document.getElementById("next_gc_byte_target").innerText = nextGcByteTarget
-		} catch (err) {
-			console.error(err)
-		}
-	}
-
-	const goroutineChart = newChart("goroutine-chart", [
-		"goroutine_num"
-		])
-
-	const sysChart = newChart("sys-chart", [
-		"sys",
-		"other_sys"
-		])
-
-	const heapByteChart = newChart("heap-byte-chart", [
-		"heap_sys",
-		"heap_inuse",
-		"heap_alloc",
-		"heap_released",
-		"heap_idle"
-		])
-
-	const heapCountChart = newChart("heap-count-chart", [
-		"heap_objects",
-		"mallocs",
-		"frees"
-		])
-
-		let gcByteChart;
-		let gcNumChart;
-
-	if (cfg.IsGCOn) {
-		gcByteChart = newChart("gc-byte-chart", [
-			"gc_sys"
-			])
-		
-		gcNumChart = newChart("gc-num-chart", [
-			"gc_num",
-			"gc_num_forced"
-			])
-	}
-
-	setInterval(async ()=>{
-		if (isPaused) return;
-
-		try {
-			const resp = await fetch("/debug/stati/info")
-			const body = await resp.json()
-
-			const time = new Date().toLocaleTimeString()
-
-			// Goroutine (num)
-			addValue(goroutineChart, time, "goroutine_num", body.num_goroutines)
-
-			// Sys (byte)
-			addValue(sysChart, time, "sys", body.sys)
-			addValue(sysChart, time, "other_sys", body.other_sys)
-
-			// Heap (byte)
-			addValue(heapByteChart, time, "heap_sys", body.heap_sys)
-			addValue(heapByteChart, time, "heap_inuse", body.heap_inuse)
-			addValue(heapByteChart, time, "heap_alloc", body.heap_alloc)
-			addValue(heapByteChart, time, "heap_released", body.heap_released)
-			addValue(heapByteChart, time, "heap_idle", body.heap_idle)
-
-			// Heap (count)
-			addValue(heapCountChart, time, "heap_objects", body.heap_objects)
-			addValue(heapCountChart, time, "mallocs", body.mallocs)
-			addValue(heapCountChart, time, "frees", body.frees)
-
-			if (cfg.IsGCOn) {
-				// GC (byte)
-				addValue(gcByteChart, time, "gc_sys", body.gc_sys)
-
-				// GC (num)
-				addValue(gcNumChart, time, "gc_num", body.num_gc)
-				addValue(gcNumChart, time, "gc_num_forced", body.num_forced_gc)
-			}
-
-			goroutineChart.update()
-			sysChart.update()
-			heapByteChart.update()
-			heapCountChart.update()
-
-			if (cfg.IsGCOn) {
-				gcByteChart.update()
-				gcNumChart.update()
-				updateGC(body.gc_cpu_fraction, body.pause_total_ns,body.last_gc,body.next_gc)
-			}
-
-
-			if (showWarning) {
-				showWarning = false
-				warningToast.classList.remove("block")
-				warningToast.classList.add("hidden")
-			}
-		} catch (err) {
-			console.error(err)
-			if (!showWarning) {
-				showWarning = true
-				warningToast.classList.remove("hidden")
-				warningToast.classList.add("block")
-			}
-		}
-	},cfg.Interval);
 }

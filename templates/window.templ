@@ -8,7 +8,7 @@ type WindowConfig struct {
 }
 
 templ ChartWindow(cfg WindowConfig) {
-	<div class="[&:has(input:checked)_.more]:hidden [&:has(input:checked)_.less]:inline w-full rounded bg-gray-900 border border-white/20 overflow-hidden">
+	<div x-data="{ is_colapsed : true }" class="w-full rounded bg-gray-900 border border-white/20 overflow-hidden">
 		<div class="w-full bg-gray-800 border-b border-white/20 p-2 flex items-center justify-between">
 			<div class="flex gap-x-2 items-center">
 				<h2>{ cfg.Title }</h2>
@@ -18,20 +18,25 @@ templ ChartWindow(cfg WindowConfig) {
 					</span>
 				}
 			</div>
-			<label class="cursor-pointer more inline px-3 py-0.5 border border-white/20 rounded hover:opacity-70" for={ cfg.ChartID + "_detail" }>
-				Show more
-			</label>
-			<label class="cursor-pointer less hidden px-3 py-0.5 border border-white/20 rounded hover:opacity-70" for={ cfg.ChartID + "_detail" }>
-				Show less
-			</label>
+			<div class="flex gap-x-3">
+				<button
+					@click="is_colapsed = !is_colapsed"
+					class="cursor-pointer px-3 py-0.5 border border-white/20 rounded hover:opacity-70"
+					x-text="is_colapsed ? 'Show more': 'Show less'"
+				>
+					Show more
+				</button>
+			</div>
 		</div>
 		<div class="flex flex-col w-full">
 			<div class="h-64 w-full p-3">
 				<canvas class="w-full h-full" id={ cfg.ChartID }></canvas>
 			</div>
 			if len(cfg.Fields) > 0 {
-				<input class="hidden [&+.stats]:hidden [&:checked+.stats]:block" id={ cfg.ChartID + "_detail" } type="checkbox"/>
-				<div class="w-full stats [&>.row:nth-child(2n-1)]:bg-white/5 [&>.row]:border-b [&>.row]:border-white/20 [&>.row:last-child]:border-b-0 [&>.row:last-child]:pb-3">
+				<div
+					x-show="!is_colapsed"
+					class="w-full stats [&>.row:nth-child(2n-1)]:bg-white/5 [&>.row]:border-b [&>.row]:border-white/20 [&>.row:last-child]:border-b-0 [&>.row:last-child]:pb-3"
+				>
 					<div class="grid grid-cols-5 bg-white/5 gap-6 border-y border-t-white/20 border-b-white/50 text-white/50 font-light pt-3 [&>div:first-child]:pl-4 [&>div:last-child]:pr-4">
 						<div>
 							Field
@@ -54,18 +59,33 @@ templ ChartWindow(cfg WindowConfig) {
 							<div>
 								{ field }
 							</div>
-							<div id={ field + "_min" }>
-								0
-							</div>
-							<div id={ field + "_avg" }>
-								0
-							</div>
-							<div id={ field + "_max" }>
-								0
-							</div>
-							<div id={ field + "_latest" }>
-								0
-							</div>
+							if cfg.Subtitle == "byte" {
+								<div x-data="{v: '0'}" x-text={ "v" } x-init={ "$watch('$store.table." + field + "?.min, is_human_readable', value => { v = is_human_readable ? humanReadable(value): value})" }>
+									0
+								</div>
+								<div x-data="{v: '0'}" x-text={ "v" } x-init={ "$watch('$store.table." + field + "?.avg, is_human_readable', value => { v = is_human_readable ? humanReadable(value): value})" }>
+									0
+								</div>
+								<div x-data="{v: '0'}" x-text={ "v" } x-init={ "$watch('$store.table." + field + "?.max, is_human_readable', value => { v = is_human_readable ? humanReadable(value): value})" }>
+									0
+								</div>
+								<div x-data="{v: '0'}" x-text={ "v" } x-init={ "$watch('$store.table." + field + "?.latest, is_human_readable', value => { v = is_human_readable ? humanReadable(value): value})" }>
+									0
+								</div>
+							} else {
+								<div x-text={ "$store.table." + field + "?.min" }>
+									0
+								</div>
+								<div x-text={ "$store.table." + field + "?.avg" }>
+									0
+								</div>
+								<div x-text={ "$store.table." + field + "?.max" }>
+									0
+								</div>
+								<div x-text={ "$store.table." + field + "?.latest" }>
+									0
+								</div>
+							}
 						</div>
 					}
 				</div>

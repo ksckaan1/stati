@@ -7,34 +7,34 @@ templ GarbageCollector(cfg StatsConfig) {
 				<div class="bg-green-900 px-3 py-1 border-b border-white/20">Garbage Collector</div>
 				<div class="grid grid-cols-4 gap-5 p-5 border-b border-white/20">
 					<div class="bg-green-900 p-3 rounded border border-white/20">
-						<h2>
+						<h2 class="text-white/50">
 							GC CPU Fraction
 						</h2>
-						<div id="gc_cpu_fraction">
+						<div x-text="$store.table.gc_cpu_fraction">
 							0
 						</div>
 					</div>
 					<div class="bg-green-900 p-3 rounded border border-white/20">
-						<h2>
+						<h2 class="text-white/50">
 							Total Pause
 						</h2>
-						<div id="total_pause">
+						<div x-text="$store.table.total_pause">
 							0ns
 						</div>
 					</div>
 					<div class="bg-green-900 p-3 rounded border border-white/20">
-						<h2>
+						<h2 class="text-white/50">
 							Last GC
 						</h2>
-						<div id="last_gc">
+						<div x-html="$store.table.last_gc">
 							None
 						</div>
 					</div>
 					<div class="bg-green-900 p-3 rounded border border-white/20">
-						<h2>
+						<h2 class="text-white/50">
 							Next GC Byte Target
 						</h2>
-						<div id="next_gc_byte_target">
+						<div x-text="$store.table.next_gc_byte_target">
 							0
 						</div>
 					</div>
