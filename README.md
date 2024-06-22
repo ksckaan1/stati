@@ -84,4 +84,4 @@ Open [http://localhost:3000/stati](http://localhost:3000/stati) on your browser.
 
 ## Screenshot
 
-![ss](./img/ss.jpg)
+![ss](./img/screenshot.jpg)
