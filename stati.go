@@ -75,7 +75,7 @@ func (s *Stati) StatsPage(w http.ResponseWriter, r *http.Request) {
 		GOARCH:      runtime.GOARCH,
 		NumCPU:      runtime.NumCPU(),
 		GOVERSION:   runtime.Version(),
-		Version:     "v0.0.4",
+		Version:     "v0.0.5",
 	})
 	page.Render(r.Context(), w)
 }
