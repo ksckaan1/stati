@@ -78,6 +78,7 @@ Open [http://localhost:3000/stati](http://localhost:3000/stati) on your browser.
 
 ## Dependencies
 - [Templ](https://github.com/a-h/templ)
+- [Alpine.js](https://github.com/alpinejs/alpine)
 - [Chart.js](https://github.com/chartjs/Chart.js)
 - [Tailwindcss](https://github.com/tailwindlabs/tailwindcss)
 
