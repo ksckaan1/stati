@@ -4,6 +4,12 @@
 
 ### Realtime monitoring for Go Runtime
 
+[![tag](https://img.shields.io/github/tag/ksckaan1/stati.svg)](https://github.com/ksckaan1/stati/releases)
+![Go Version](https://img.shields.io/badge/Go-%3E%3D%201.23.1-%23007d9c)
+[![Go report](https://goreportcard.com/badge/github.com/ksckaan1/stati)](https://goreportcard.com/report/github.com/ksckaan1/stati)
+[![Contributors](https://img.shields.io/github/contributors/ksckaan1/stati)](https://github.com/ksckaan1/stati/graphs/contributors)
+[![LICENSE](https://img.shields.io/badge/LICENCE-MIT-orange?style=flat)](./LICENSE)
+
 ## Installation
 
 ```shell
